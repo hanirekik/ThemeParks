@@ -6,7 +6,6 @@ const attractionSchema = new mongoose.Schema({
     name: { type: String, required: true },
     entityType: { type: String, required: true },
     parkId: { type: String, required: false },
-    externalId: { type: String, required: false },
     waitTime: { type: Number, default: null },
     status: { type: String, required: true },
     lastUpdated: { type: Date, default: Date.now },
