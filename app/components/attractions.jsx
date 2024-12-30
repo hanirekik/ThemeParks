@@ -83,7 +83,6 @@ const AttractionsList = () => {
         )}
       </View>
 
-      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
