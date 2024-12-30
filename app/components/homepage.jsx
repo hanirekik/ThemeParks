@@ -23,7 +23,7 @@ const HomePage = () => {
         <View style={styles.statusContainer}>
           <Text style={styles.status}>{item.status}</Text>
           {item.status === "Open" && (
-            <Text style={styles.waitTime}>{item.waitTime}</Text>
+            <Text style={styles.waitTime}>{item.waitTime} min</Text>
           )}
         </View>
       </View>

@@ -2,7 +2,7 @@ export const attractions = [
   {
     id: "1",
     name: "Peter Pan's Flight",
-    waitTime: "10 min",
+    waitTime: "10",
     status: "Open",
     lastUpdated: "2 min ago",
     image: require("../../assets/images/peter-pan-flight-attraction.jpg"),
@@ -10,7 +10,7 @@ export const attractions = [
   {
     id: "2",
     name: "Crush's Coaster",
-    waitTime: "15 min",
+    waitTime: "35",
     status: "Open",
     lastUpdated: "1 min ago",
     image: require("../../assets/images/crushs-coaster.jpg"),
@@ -18,7 +18,7 @@ export const attractions = [
   {
     id: "3",
     name: "Big Thunder Mountain",
-    waitTime: "20 min",
+    waitTime: "20",
     status: "Open",
     lastUpdated: "1 min ago",
     image: require("../../assets/images/big-thunder-mountain.jpg"),
@@ -26,7 +26,7 @@ export const attractions = [
   {
     id: "4",
     name: "Dumbo the Flying Elephant",
-    waitTime: "35 min",
+    waitTime: "15",
     status: "Open",
     lastUpdated: "18 min ago",
     image: require("../../assets/images/dumbo-attraction.png"),
@@ -35,7 +35,7 @@ export const attractions = [
     id: "5",
     name: "Le Carrousel de Lancelot",
     waitTime: "0",
-    status: "Down",
+    status: "Closed",
     lastUpdated: "8 hours ago",
     image: require("../../assets/images/le-carrousel-de-lancelot.jpg"),
   },

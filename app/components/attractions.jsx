@@ -41,7 +41,9 @@ const AttractionsList = () => {
         <Text style={styles.name}>{item.name}</Text>
         <View style={styles.detailsContainer}>
           {item.status === "Open" && (
-            <Text style={styles.waitTime}>⏳ Wait Time: {item.waitTime}</Text>
+            <Text style={styles.waitTime}>
+              ⏳ Wait Time: {item.waitTime} min
+            </Text>
           )}
           <Text
             style={[
@@ -81,6 +83,7 @@ const AttractionsList = () => {
         )}
       </View>
 
+      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <TouchableOpacity
           style={[
@@ -144,15 +147,21 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     marginVertical: 10,
+    paddingHorizontal: 15,
   },
   filterButton: {
     backgroundColor: "#e0e0e0",
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
-    marginHorizontal: 5,
+    marginRight: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
   filterButtonActive: {
     backgroundColor: "#007aff",
