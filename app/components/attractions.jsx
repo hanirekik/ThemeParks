@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const AttractionsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [filter, setFilter] = useState("All");
 
   const handleCancel = () => {
     if (searchQuery.length > 0) {
@@ -24,9 +25,14 @@ const AttractionsList = () => {
     setIsFocused(false);
   };
 
-  const filteredAttractions = attractions.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAttractions = attractions.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesFilter =
+      filter === "All" || (filter === "Open" && item.status === "Open");
+    return matchesSearch && matchesFilter;
+  });
 
   const renderAttraction = ({ item }) => (
     <View style={styles.item}>
@@ -75,6 +81,27 @@ const AttractionsList = () => {
         )}
       </View>
 
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "All" && styles.filterButtonActive,
+          ]}
+          onPress={() => setFilter("All")}
+        >
+          <Text style={styles.filterText}>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            filter === "Open" && styles.filterButtonActive,
+          ]}
+          onPress={() => setFilter("Open")}
+        >
+          <Text style={styles.filterText}>Open</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={filteredAttractions}
         renderItem={renderAttraction}
@@ -106,9 +133,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#f4f0ec",
     borderRadius: 10,
   },
-  searchBarInput: {
-    color: "#34495e",
-  },
   cancelButton: {
     marginLeft: 10,
     justifyContent: "center",
@@ -116,6 +140,26 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: "#007aff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  filterContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  filterButton: {
+    backgroundColor: "#e0e0e0",
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 20,
+    marginHorizontal: 5,
+  },
+  filterButtonActive: {
+    backgroundColor: "#007aff",
+  },
+  filterText: {
+    color: "#ffffff",
+    fontSize: 14,
     fontWeight: "bold",
   },
   listContainer: {
