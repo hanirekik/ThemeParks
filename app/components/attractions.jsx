@@ -6,16 +6,24 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Modal,
+  SafeAreaView,
   Keyboard,
 } from "react-native";
-import { SearchBar } from "react-native-elements";
+import { SearchBar, Icon } from "react-native-elements";
 import { attractions } from "../data/attractions";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 const AttractionsList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const [filter, setFilter] = useState("All");
+  const [sortOption, setSortOption] = useState({ field: "name", order: "asc" });
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedField, setSelectedField] = useState("name");
+  const [selectedOrder, setSelectedOrder] = useState("asc");
+
+  const navigation = useNavigation();
 
   const handleCancel = () => {
     if (searchQuery.length > 0) {
@@ -25,14 +33,31 @@ const AttractionsList = () => {
     setIsFocused(false);
   };
 
-  const filteredAttractions = attractions.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesFilter =
-      filter === "All" || (filter === "Open" && item.status === "Open");
-    return matchesSearch && matchesFilter;
-  });
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const applySort = () => {
+    setSortOption({ field: selectedField, order: selectedOrder });
+    setModalVisible(false);
+  };
+
+  const filteredAttractions = attractions
+    .filter((item) => {
+      const matchesSearch = item.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesFilter =
+        filter === "All" || (filter === "Open" && item.status === "Open");
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      if (sortOption.order === "asc") {
+        return a[sortOption.field] > b[sortOption.field] ? 1 : -1;
+      } else {
+        return a[sortOption.field] < b[sortOption.field] ? 1 : -1;
+      }
+    });
 
   const renderAttraction = ({ item }) => (
     <View style={styles.item}>
@@ -40,23 +65,24 @@ const AttractionsList = () => {
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.name}</Text>
         <View style={styles.detailsContainer}>
-          {item.status === "Open" && (
-            <Text style={styles.waitTime}>
-              ⏳ Wait Time: {item.waitTime} min
+          <View style={styles.waitStatusContainer}>
+            {item.status === "Open" && (
+              <>
+                <Text style={styles.waitTime}>🕒 {item.waitTime} min</Text>
+                <Text style={styles.separator}> • </Text>
+              </>
+            )}
+            <Text
+              style={[
+                styles.status,
+                { color: item.status === "Open" ? "#27ae60" : "#c0392b" },
+              ]}
+            >
+              {item.status}
             </Text>
-          )}
-          <Text
-            style={[
-              styles.status,
-              { color: item.status === "Open" ? "#27ae60" : "#c0392b" },
-            ]}
-          >
-            📍 Status: {item.status}
-          </Text>
+          </View>
         </View>
-        <Text style={styles.lastUpdated}>
-          🕒 Last Updated: {item.lastUpdated}
-        </Text>
+        <Text style={styles.lastUpdated}>Last Updated: {item.lastUpdated}</Text>
       </View>
     </View>
   );
@@ -64,8 +90,10 @@ const AttractionsList = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" type="feather" size={26} color="#007aff" />
+        </TouchableOpacity>
         <SearchBar
-          key="unique-search-bar"
           placeholder="Search Attractions..."
           onChangeText={setSearchQuery}
           value={searchQuery}
@@ -102,6 +130,12 @@ const AttractionsList = () => {
         >
           <Text style={styles.filterText}>Open</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.dropdownContainer}
+          onPress={toggleModal}
+        >
+          <Text style={styles.dropdownText}>Sort ▾</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -110,6 +144,67 @@ const AttractionsList = () => {
         keyExtractor={(item) => item.name}
         contentContainerStyle={styles.listContainer}
       />
+
+      <Modal visible={isModalVisible} animationType="slide" transparent>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Sort By</Text>
+            <View style={styles.modalOptions}>
+              <View style={styles.radioGroup}>
+                <TouchableOpacity
+                  onPress={() => setSelectedField("name")}
+                  style={styles.radioOption}
+                >
+                  <View style={styles.radio}>
+                    {selectedField === "name" && (
+                      <View style={styles.radioSelected} />
+                    )}
+                  </View>
+                  <Text style={styles.radioOptionText}>Name</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setSelectedField("waitTime")}
+                  style={styles.radioOption}
+                >
+                  <View style={styles.radio}>
+                    {selectedField === "waitTime" && (
+                      <View style={styles.radioSelected} />
+                    )}
+                  </View>
+                  <Text style={styles.radioOptionText}>Wait Time</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.radioGroup}>
+                <TouchableOpacity
+                  onPress={() => setSelectedOrder("asc")}
+                  style={styles.radioOption}
+                >
+                  <View style={styles.radio}>
+                    {selectedOrder === "asc" && (
+                      <View style={styles.radioSelected} />
+                    )}
+                  </View>
+                  <Text style={styles.radioOptionText}>Ascending</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setSelectedOrder("desc")}
+                  style={styles.radioOption}
+                >
+                  <View style={styles.radio}>
+                    {selectedOrder === "desc" && (
+                      <View style={styles.radioSelected} />
+                    )}
+                  </View>
+                  <Text style={styles.radioOptionText}>Descending</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <TouchableOpacity style={styles.applyButton} onPress={applySort}>
+              <Text style={styles.applyButtonText}>Apply</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -146,7 +241,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     marginVertical: 10,
     paddingHorizontal: 15,
   },
@@ -156,11 +251,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 20,
     marginRight: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
   },
   filterButtonActive: {
     backgroundColor: "#007aff",
@@ -169,6 +259,14 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 14,
     fontWeight: "bold",
+  },
+  dropdownContainer: {
+    marginLeft: "auto",
+  },
+  dropdownText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#007aff",
   },
   listContainer: {
     paddingHorizontal: 15,
@@ -187,8 +285,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   image: {
-    width: 90,
-    height: 90,
+    width: 100,
+    height: 100,
     borderRadius: 15,
     marginRight: 20,
   },
@@ -196,28 +294,107 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#34495e",
-    marginBottom: 5,
   },
   detailsContainer: {
     marginTop: 5,
   },
+  waitStatusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
   waitTime: {
     fontSize: 16,
-    fontWeight: "bold",
     color: "#f39c12",
-    marginBottom: 5,
+    marginRight: 5,
+  },
+  separator: {
+    fontSize: 18,
+    color: "#34495e",
+    marginHorizontal: 10,
   },
   status: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
   },
   lastUpdated: {
     fontSize: 14,
     color: "#95a5a6",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  modalContent: {
+    backgroundColor: "#f8f9fa",
+    width: "90%",
+    padding: 25,
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#34495e",
+  },
+  modalOptions: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+  },
+  radioGroup: {
+    flex: 1,
+    marginHorizontal: 10,
+  },
+  radioOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  radioOptionText: {
+    fontSize: 16,
+    marginLeft: 10,
+    color: "#2c3e50",
+  },
+  radio: {
+    height: 20,
+    width: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#007aff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioSelected: {
+    height: 10,
+    width: 10,
+    borderRadius: 5,
+    backgroundColor: "#007aff",
+  },
+  applyButton: {
+    marginTop: 20,
+    backgroundColor: "#007aff",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 4,
+  },
+  applyButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
 
