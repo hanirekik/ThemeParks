@@ -11,7 +11,7 @@ import {
   Keyboard,
 } from "react-native";
 import { SearchBar, Icon } from "react-native-elements";
-import { attractions } from "../data/attractions";
+import { attractions } from "../data/db";
 import { useNavigation } from "@react-navigation/native";
 
 const AttractionsList = () => {
@@ -60,7 +60,7 @@ const AttractionsList = () => {
     });
 
   const renderAttraction = ({ item }) => (
-    <View style={styles.item}>
+    <View style={styles.item} key={item.name}>
       <Image source={item.image} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.name}</Text>
@@ -91,7 +91,7 @@ const AttractionsList = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" type="feather" size={26} color="#007aff" />
+          <Icon name="arrow-left" type="feather" size={26} color="#687ed4" />
         </TouchableOpacity>
         <SearchBar
           placeholder="Search Attractions..."
@@ -138,12 +138,25 @@ const AttractionsList = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={filteredAttractions}
-        renderItem={renderAttraction}
-        keyExtractor={(item) => item.name}
-        contentContainerStyle={styles.listContainer}
-      />
+      {filteredAttractions.length === 0 ? (
+        <View style={{ alignItems: "center" }}>
+          <Image
+            source={require("../../assets/images/no_result.webp")}
+            style={{ width: 200, height: 200 }}
+          />
+          <Text style={styles.noResultsText}>No results found !</Text>
+          <Text style={styles.noResultsSubText}>
+            There are 0 results for "{searchQuery}"
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredAttractions}
+          renderItem={renderAttraction}
+          keyExtractor={(item) => item.name}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
 
       <Modal visible={isModalVisible} animationType="slide" transparent>
         <View style={styles.modalContainer}>
@@ -235,7 +248,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cancelButtonText: {
-    color: "#007aff",
+    color: "#687ed4",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -253,7 +266,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   filterButtonActive: {
-    backgroundColor: "#007aff",
+    backgroundColor: "#687ed4",
   },
   filterText: {
     color: "#ffffff",
@@ -266,7 +279,7 @@ const styles = StyleSheet.create({
   dropdownText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#007aff",
+    color: "#687ed4",
   },
   listContainer: {
     paddingHorizontal: 15,
@@ -323,6 +336,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#95a5a6",
   },
+  noResultsText: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#34495e",
+    marginTop: 50,
+    marginBottom: 10,
+  },
+  noResultsSubText: {
+    fontSize: 16,
+    color: "#7f8c8d",
+  },
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -369,7 +394,7 @@ const styles = StyleSheet.create({
     width: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#007aff",
+    borderColor: "#687ed4",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -377,11 +402,11 @@ const styles = StyleSheet.create({
     height: 10,
     width: 10,
     borderRadius: 5,
-    backgroundColor: "#007aff",
+    backgroundColor: "#687ed4",
   },
   applyButton: {
     marginTop: 20,
-    backgroundColor: "#007aff",
+    backgroundColor: "#687ed4",
     paddingVertical: 12,
     borderRadius: 8,
     alignItems: "center",

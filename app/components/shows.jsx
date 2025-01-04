@@ -6,14 +6,18 @@ import {
   Text,
   TouchableOpacity,
   Keyboard,
+  Image,
 } from "react-native";
-import { SearchBar } from "react-native-elements";
-import { shows } from "../data/attractions";
+import { SearchBar, Icon } from "react-native-elements";
+import { shows } from "../data/db";
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ShowsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+
+  const navigation = useNavigation();
 
   const handleCancel = () => {
     if (searchQuery.length > 0) {
@@ -30,15 +34,17 @@ const ShowsPage = () => {
   const renderShow = ({ item }) => (
     <View style={styles.item}>
       <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.time}>🎭 Show Time: {item.time}</Text>
+      <Text style={styles.time}>🎭 Show starts at {item.time}</Text>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" type="feather" size={26} color="#687ed4" />
+        </TouchableOpacity>
         <SearchBar
-          key="unique-search-bar"
           placeholder="Search Shows..."
           onChangeText={setSearchQuery}
           value={searchQuery}
@@ -55,13 +61,25 @@ const ShowsPage = () => {
           </TouchableOpacity>
         )}
       </View>
-
-      <FlatList
-        data={filteredShows}
-        renderItem={renderShow}
-        keyExtractor={(item) => item.name}
-        contentContainerStyle={styles.listContainer}
-      />
+      {filteredShows.length === 0 ? (
+        <View style={{ alignItems: "center" }}>
+          <Image
+            source={require("../../assets/images/no_result.webp")}
+            style={{ width: 200, height: 200 }}
+          />
+          <Text style={styles.noResultsText}>No results found!</Text>
+          <Text style={styles.noResultsSubText}>
+            There are 0 results for "{searchQuery}"
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredShows}
+          renderItem={renderShow}
+          keyExtractor={(item) => item.name}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -92,7 +110,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   cancelButtonText: {
-    color: "#007aff",
+    color: "#687ed4",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -119,6 +137,17 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 16,
     color: "#2980b9",
+  },
+  noResultsText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#34495e",
+    marginTop: 10,
+  },
+  noResultsSubText: {
+    fontSize: 14,
+    color: "#7f8c8d",
+    marginTop: 5,
   },
 });
 
