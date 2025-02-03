@@ -11,7 +11,7 @@ import { useRouter } from "expo-router";
 import { attractions, shows } from "../data/db";
 import Header from "../components/header";
 import AttractionItem from "../components/attractionitem";
-import ShowItem from "../components/showitem";
+import ShowItem from "../components/ShowItem";
 
 const HomePage = () => {
   const router = useRouter();
