@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { attractions, shows } from "../data/db";
 import { useRouter } from "expo-router";
@@ -39,50 +40,59 @@ const HomePage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome to Disneyland Paris!</Text>
-        <Text style={styles.subTitle}>Your magical journey starts here ✨</Text>
-      </View>
+      <ScrollView style={styles.scrollView}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome to Disneyland Paris!</Text>
+          <Text style={styles.subTitle}>Your magical journey starts here ✨</Text>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Popular Attractions</Text>
-        <FlatList
-          data={attractions.slice(0, 4)}
-          renderItem={renderAttraction}
-          keyExtractor={(item) => item.name}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.list}
-        />
+        {/* Bouton pour accéder à la carte */}
         <TouchableOpacity
-          onPress={() => router.push("/components/attractions")}
-          style={styles.viewAllButton}
+          onPress={() => router.push("/components/map")}
+          style={styles.mapButton}
         >
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.mapButtonText}>View Map</Text>
         </TouchableOpacity>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Popular Shows</Text>
-        <FlatList
-          data={shows.slice(0, 4)}
-          renderItem={renderShow}
-          keyExtractor={(item) => item.name}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.list}
-        />
-        <TouchableOpacity
-          onPress={() => router.push("/components/shows")}
-          style={styles.viewAllButton}
-        >
-          <Text style={styles.viewAllText}>View All</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Popular Attractions</Text>
+          <FlatList
+            data={attractions.slice(0, 4)}
+            renderItem={renderAttraction}
+            keyExtractor={(item) => item.name}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.list}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/components/attractions")}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Popular Shows</Text>
+          <FlatList
+            data={shows.slice(0, 4)}
+            renderItem={renderShow}
+            keyExtractor={(item) => item.name}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.list}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/components/shows")}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -208,6 +218,22 @@ const styles = StyleSheet.create({
   viewAllText: {
     color: "#fff",
     fontWeight: "bold",
+  }, mapButton: {
+    backgroundColor: "#FF4500",
+    padding: 12,
+    borderRadius: 25,
+    alignItems: "center",
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  mapButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
