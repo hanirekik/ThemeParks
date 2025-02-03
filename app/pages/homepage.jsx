@@ -24,7 +24,7 @@ const HomePage = () => {
       <Header />
 
       <TouchableOpacity
-          onPress={() => router.push("/components/map")}
+          onPress={() => router.push("/pages/map")}
           style={styles.mapButton}
         >
           <Text style={styles.mapButtonText}>View Map</Text>
