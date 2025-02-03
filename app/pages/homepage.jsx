@@ -24,7 +24,7 @@ const HomePage = () => {
       <Header />
 
       <TouchableOpacity
-          onPress={() => router.push("/pages/map")}
+          onPress={() => router.push("/pages/MapPage")}
           style={styles.mapButton}
         >
           <Text style={styles.mapButtonText}>View Map</Text>
@@ -42,7 +42,7 @@ const HomePage = () => {
           style={styles.list}
         />
         <TouchableOpacity
-          onPress={() => router.push("/pages/attractions")}
+          onPress={() => router.push("/pages/AttractionsPage")}
           style={styles.viewAllButton}
         >
           <Text style={styles.viewAllText}>View All</Text>
@@ -60,7 +60,7 @@ const HomePage = () => {
           style={styles.list}
         />
         <TouchableOpacity
-          onPress={() => router.push("/pages/shows")}
+          onPress={() => router.push("/pages/ShowsPage")}
           style={styles.viewAllButton}
         >
           <Text style={styles.viewAllText}>View All</Text>
