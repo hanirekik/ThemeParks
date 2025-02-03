@@ -12,7 +12,7 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "app/components/attractions.jsx",
-    "app/components/homepage.jsx",
+    "app/pages/homepage.jsx",
     "app/components/shows.jsx"
   ]
 }
