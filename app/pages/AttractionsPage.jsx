@@ -10,7 +10,7 @@ import { Icon } from "react-native-elements";
 import { attractions } from "../data/db";
 import SearchBarComponent from "../components/searchbar";
 import FilterBar from "../components/filterbuttons";
-import AttractionListAll from "../components/attractionListAll";
+import AttractionListAll from "../components/AttractionListAll";
 import SortModal from "../components/sortmodal";
 import NoResults from "../components/noresults";
 import { useNavigation } from "@react-navigation/native";
