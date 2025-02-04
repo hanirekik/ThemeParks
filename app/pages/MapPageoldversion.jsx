@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, LogBox } from 'react-native';
-import MapView from 'react-native-maps';
+import { View, StyleSheet, Alert, Text, LogBox } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import * as Location from 'expo-location';
 import axios from 'axios';
-import LocationMarker from '../components/LocationMarker';
-import AttractionMarker from '../components/AttractionMarker';
-import InfoBar from '../components/InfoBar';
 
 // Ignorer l'avertissement concernant la clé unique dans une liste
 LogBox.ignoreLogs(['Each child in a list should have a unique "key" prop.']);
@@ -17,7 +15,7 @@ const DisneylandMap = () => {
 
   // Fonction pour récupérer les données du backend, incluant la latitude et la longitude des attractions
   const getApiUrl = () => {
-    return "http://192.168.1.17:3000/api/locations"; // Assure-toi que cette URL est correcte
+    return "http://192.168.1.17:3000/api/locations"; 
   };
 
   const fetchWaitTimes = async () => {
@@ -66,7 +64,16 @@ const DisneylandMap = () => {
   return (
     <View style={styles.container}>
       {/* 🔹 Barre d'information en haut de l'écran */}
-      <InfoBar selectedAttraction={selectedAttraction} />
+      {selectedAttraction && (
+        <View style={styles.infoBar}>
+          <Text style={styles.infoText}>
+            - TdA: {selectedAttraction.queue?.STANDBY?.waitTime || "N/A"} min
+          </Text>
+          <Text style={styles.infoTextSmall}>
+            MàJ: {new Date(selectedAttraction.lastUpdated).toLocaleString()}
+          </Text>
+        </View>
+      )}
 
       {/* Affichage de la carte */}
       <MapView
@@ -79,15 +86,27 @@ const DisneylandMap = () => {
         }}
       >
         {attractions.map((attraction) => (
-          <AttractionMarker
+          <Marker
             key={attraction.uniqueKey}
-            attraction={attraction}
-            onPress={setSelectedAttraction}
+            coordinate={{
+              latitude: attraction.latitude || 48.872234,
+              longitude: attraction.longitude || 2.775808,
+            }}
+            title={attraction.name}
+            onPress={() => setSelectedAttraction(attraction)}
           />
         ))}
 
-        {/* Afficher le marqueur de la localisation de l'utilisateur */}
-        <LocationMarker location={location} />
+        {location && (
+          <Marker
+            coordinate={{
+              latitude: location.coords.latitude,
+              longitude: location.coords.longitude,
+            }}
+            title="Vous êtes ici"
+            pinColor="blue"
+          />
+        )}
       </MapView>
     </View>
   );
@@ -101,6 +120,26 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  infoBar: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  infoText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  infoTextSmall: {
+    color: 'white',
+    fontSize: 14,
   },
 });
 
