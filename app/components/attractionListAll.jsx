@@ -59,7 +59,6 @@ const AttractionListAll = ({ item }) => {
       );
       return;
     }
-
     const newPreference = !isNotificationEnabled;
     setIsNotificationEnabled(newPreference);
 
