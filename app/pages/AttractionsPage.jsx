@@ -15,7 +15,7 @@ import SortModal from "../components/sortmodal";
 import NoResults from "../components/noresults";
 import { useNavigation } from "@react-navigation/native";
 
-const AttractionsListPage = ({}) => {
+const AttractionsListPage = ({ }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [sortOption, setSortOption] = useState({ field: "name", order: "asc" });
@@ -57,6 +57,7 @@ const AttractionsListPage = ({}) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" type="feather" size={26} color="#687ed4" />
         </TouchableOpacity>
+
         <SearchBarComponent
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}

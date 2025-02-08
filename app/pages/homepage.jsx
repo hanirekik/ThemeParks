@@ -21,14 +21,26 @@ const getApiUrl = () => "http://192.168.1.17:3000/prediction";
 const HomePage = () => {
   const router = useRouter();
   const [predic, setPredic] = useState([]);
+  const [mostFrequentDate, setMostFrequentDate] = useState("");
 
   const fetchPredictionFromDB = async () => {
     try {
       const response = await axios.get(getApiUrl());
       // console.log("✅ Données récupérées :", response.data);
-
+  
+      let dateOccurrences = {}; // Objet pour stocker les occurrences des dates
+  
       // Regrouper les prédictions par name
       const groupedPredictions = response.data.reduce((acc, item) => {
+        const predictionDate = new Date(item.prediction_Date);
+        const year = predictionDate.getFullYear();
+        const month = predictionDate.getMonth();
+  
+        // Filtrer les prédictions pour exclure celles de 2024 et janvier 2025
+        if (year === 2024 || (year === 2025 && month === 0)) {
+          return acc;
+        }
+  
         if (!acc[item.name]) {
           acc[item.name] = [];
         }
@@ -36,15 +48,30 @@ const HomePage = () => {
           prediction_Date: item.prediction_Date,
           predicted_waitTime: item.predicted_waitTime,
         });
+  
+        // Compter les occurrences de chaque date
+        const dateKey = item.prediction_Date;
+        dateOccurrences[dateKey] = (dateOccurrences[dateKey] || 0) + 1;
+  
         return acc;
       }, {});
-
+  
+      // Trouver la date avec le plus d'occurrences
+      const mostFrequentDate = Object.keys(dateOccurrences).reduce((a, b) =>
+        dateOccurrences[a] > dateOccurrences[b] ? a : b
+      );
+  
+      console.log("📅 Date la plus fréquente :", mostFrequentDate);
+  
       setPredic(groupedPredictions); // Met à jour le state avec l'objet regroupé
+      setMostFrequentDate(mostFrequentDate); // Si tu veux l'utiliser ailleurs
+  
     } catch (error) {
       console.error("❌ Erreur lors de la récupération des prédictions :", error);
       Alert.alert("Erreur", "Impossible de récupérer les prédictions.");
     }
   };
+  
 
   useEffect(() => {
     fetchPredictionFromDB();
@@ -105,7 +132,7 @@ const HomePage = () => {
 
        {/* Section des Prédictions */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Predicted Wait Times</Text>
+        <Text style={styles.sectionTitle}>Shortest wait time for {new Date(mostFrequentDate).toDateString()}</Text>
         
         <FlatList
           data={Object.keys(predic)}
@@ -114,8 +141,8 @@ const HomePage = () => {
               <Text style={styles.predictionTitle}>🎢 {item}</Text>
               {predic[item].map((pred, index) => (
                 <View key={index} style={styles.predictionDetail}>
-                  <Text style={styles.predictionText}>📅 {new Date(pred.prediction_Date).toLocaleString()}</Text>
-                  <Text style={styles.predictionText}>⏳ {pred.predicted_waitTime} min</Text>
+                <Text style={styles.predictionText}>🕒 {new Date(pred.prediction_Date).toLocaleTimeString()}</Text>
+                <Text style={styles.predictionText}>⏳ {pred.predicted_waitTime} min</Text>
                 </View>
               ))}
             </View>

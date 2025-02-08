@@ -4,9 +4,9 @@ import { Ionicons } from "@expo/vector-icons";
 
 const SearchPrediction = ({ searchQuery, handleSearch, navigation }) => {
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 10 }}>
-        <Ionicons name="arrow-back" size={24} color="#000" />
+    <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 15 }}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginRight: 15 }}>
+        <Ionicons name="arrow-back" size={26} color="#687ed4" />
       </TouchableOpacity>
       <TextInput
         style={{
@@ -17,6 +17,7 @@ const SearchPrediction = ({ searchQuery, handleSearch, navigation }) => {
           borderRadius: 8,
           paddingHorizontal: 10,
         }}
+        
         placeholder="Rechercher une attraction..."
         onChangeText={handleSearch}
         value={searchQuery}
