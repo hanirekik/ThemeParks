@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   FlatList,
@@ -8,14 +8,14 @@ import {
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { attractions } from "../data/db";
-import SearchBarComponent from "../components/searchbar";
-import FilterBar from "../components/filterbuttons";
-import AttractionListAll from "../components/attractionListAll";
-import SortModal from "../components/sortmodal";
-import NoResults from "../components/noresults";
+import SearchBarComponent from "../components/SearchBar";
+import FilterBar from "../components/FilterButtons";
+import AttractionListAll from "../components/AttractionListAll";
+import SortModal from "../components/SortModal";
+import NoResults from "../components/NoResults";
 import { useNavigation } from "@react-navigation/native";
 
-const AttractionsListPage = ({}) => {
+const AttractionsListPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [sortOption, setSortOption] = useState({ field: "name", order: "asc" });
@@ -104,18 +104,6 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingHorizontal: 15,
-  },
-  noResultsText: {
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#34495e",
-    marginTop: 50,
-    marginBottom: 10,
-  },
-  noResultsSubText: {
-    fontSize: 16,
-    color: "#7f8c8d",
   },
 });
 

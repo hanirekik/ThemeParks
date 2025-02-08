@@ -1,6 +1,11 @@
-import React from "react";
-import HomePage from "./pages/homepage";
+import React, { useEffect } from "react";
+import BottomTabNavigator from "./pages/BottomNavigatorPage";
+import { requestNotificationPermissions } from "./services/NotificationService";
 
 export default function Index() {
-  return <HomePage />;
+  useEffect(() => {
+    requestNotificationPermissions();
+  }, []);
+
+  return <BottomTabNavigator />;
 }

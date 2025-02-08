@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginRight: 15,
     width: 190,
-    height: 270,
+    height: 290,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -42,21 +42,21 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   textContainer: {
-    flex: 1, // Make the text container take up available space
-    justifyContent: "space-between", // Distribute items evenly
+    flex: 1,
+    justifyContent: "space-between",
     alignItems: "center",
   },
   itemName: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
-    textAlign: "center", // Center the name if it wraps to the next line
+    textAlign: "center",
   },
   itemDetails: {
     fontSize: 14,
     color: "#555",
     textAlign: "center",
-    marginTop: 5,
+    marginTop: 3,
   },
   statusContainer: {
     flexDirection: "row",

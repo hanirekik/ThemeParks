@@ -34,7 +34,6 @@ export const attractions = [
   {
     id: "5",
     name: "Le Carrousel de Lancelot",
-    waitTime: "0",
     status: "Closed",
     lastUpdated: "8 hours ago",
     image: require("../../assets/images/le-carrousel-de-lancelot.jpg"),
@@ -42,7 +41,6 @@ export const attractions = [
   {
     id: "6",
     name: "Alice's Curious Labyrinth",
-    waitTime: "0",
     status: "Closed",
     lastUpdated: "8 hours ago",
     image: require("../../assets/images/le-labyrinthe-dalice.jpg"),

@@ -1,7 +1,74 @@
-import React from "react";
-import { View, Image, Text, StyleSheet } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
+import { Icon } from "react-native-elements";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  requestNotificationPermissions,
+  scheduleNotification,
+} from "../services/NotificationService";
 
 const AttractionListAll = ({ item }) => {
+  const router = useRouter();
+  const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
+  const [globalNotificationsEnabled, setGlobalNotificationsEnabled] =
+    useState(false);
+
+  useEffect(() => {
+    const loadGlobalNotificationPreference = async () => {
+      const savedPreference = await AsyncStorage.getItem(
+        "notificationsEnabled"
+      );
+      if (savedPreference !== null) {
+        setGlobalNotificationsEnabled(JSON.parse(savedPreference));
+      }
+    };
+    loadGlobalNotificationPreference();
+  }, []);
+
+  useEffect(() => {
+    const loadNotificationPreference = async () => {
+      const savedPreference = await AsyncStorage.getItem(
+        `notification_${item.id}`
+      );
+      if (savedPreference !== null) {
+        setIsNotificationEnabled(savedPreference === "true");
+      }
+    };
+    loadNotificationPreference();
+  }, [item.id]);
+
+  const toggleNotification = async () => {
+    if (!globalNotificationsEnabled) {
+      Alert.alert(
+        "Notifications Disabled",
+        "Please enable notifications in the Settings page to receive alerts.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Go to Settings",
+            onPress: () => router.push("/pages/Settings"),
+          },
+        ]
+      );
+      return;
+    }
+
+    const newPreference = !isNotificationEnabled;
+    setIsNotificationEnabled(newPreference);
+
+    if (newPreference && item.waitTime < 20) {
+      await scheduleNotification(item.name);
+    }
+  };
+
   return (
     <View style={styles.item}>
       <Image source={item.image} style={styles.image} />
@@ -27,6 +94,14 @@ const AttractionListAll = ({ item }) => {
         </View>
         <Text style={styles.lastUpdated}>Last Updated: {item.lastUpdated}</Text>
       </View>
+      <TouchableOpacity onPress={toggleNotification} style={styles.bellIcon}>
+        <Icon
+          name={isNotificationEnabled ? "bell" : "bell-off"}
+          type="feather"
+          size={24}
+          color={isNotificationEnabled ? "#f39c12" : "#95a5a6"}
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -83,6 +158,9 @@ const styles = StyleSheet.create({
   lastUpdated: {
     fontSize: 14,
     color: "#95a5a6",
+  },
+  bellIcon: {
+    marginLeft: 10,
   },
 });
 

@@ -11,8 +11,19 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
-    "app/components/attractions.jsx",
-    "app/pages/homepage.jsx",
-    "app/components/shows.jsx"
+    "app/pages/AttractionsPage.jsx",
+    "app/pages/HomePage.jsx",
+    "app/pages/ShowsPage.jsx",
+    "app/pages/ShowsPage.jsx",
+    "app/pages/AttractionsPage.jsx",
+    "app/components/header.jsx",
+    "app/components/FilterButtons.jsx",
+    "app/components/NoResults.jsx",
+    "app/components/SearchBar.jsx",
+    "app/components/AttractionListAll.jsx",
+    "app/components/attractionitem.jsx",
+    "app/components/showitem.jsx",
+    "app/components/ShowListAll.jsx",
+    "app/components/SortModal.jsx"
   ]
 }

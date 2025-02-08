@@ -5,55 +5,67 @@ import {
   StyleSheet,
   TouchableOpacity,
   Text,
+  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { attractions, shows } from "../data/db";
-import Header from "../components/header";
-import AttractionItem from "../components/attractionitem";
-import ShowItem from "../components/showitem";
+import Header from "../components/Header";
+import AttractionItem from "../components/AttractionItem";
+import ShowItem from "../components/ShowItem";
+import Animated, { FadeIn, FadeInRight } from "react-native-reanimated";
 
 const HomePage = () => {
   const router = useRouter();
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Header />
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Popular Attractions</Text>
-        <FlatList
-          data={attractions.slice(0, 4)}
-          renderItem={({ item }) => <AttractionItem item={item} />}
-          keyExtractor={(item) => item.name}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.list}
-        />
-        <TouchableOpacity
-          onPress={() => router.push("/pages/attractions")}
-          style={styles.viewAllButton}
-        >
-          <Text style={styles.viewAllText}>View All</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <ScrollView>
+        <Animated.View entering={FadeIn.duration(800)}>
+          <Header />
+        </Animated.View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Popular Shows</Text>
-        <FlatList
-          data={shows.slice(0, 4)}
-          renderItem={({ item }) => <ShowItem item={item} />}
-          keyExtractor={(item) => item.name}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.list}
-        />
-        <TouchableOpacity
-          onPress={() => router.push("/pages/shows")}
-          style={styles.viewAllButton}
+        <Animated.View
+          entering={FadeInRight.duration(800).delay(200)}
+          style={styles.section}
         >
-          <Text style={styles.viewAllText}>View All</Text>
-        </TouchableOpacity>
-      </View>
+          <Text style={styles.sectionTitle}>Popular Attractions</Text>
+          <FlatList
+            data={attractions.slice(0, 4)}
+            renderItem={({ item }) => <AttractionItem item={item} />}
+            keyExtractor={(item) => item.name}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.list}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/pages/AttractionsPage")}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </Animated.View>
+
+        <Animated.View
+          entering={FadeInRight.duration(800).delay(400)}
+          style={styles.section}
+        >
+          <Text style={styles.sectionTitle}>Popular Shows</Text>
+          <FlatList
+            data={shows.slice(0, 4)}
+            renderItem={({ item }) => <ShowItem item={item} />}
+            keyExtractor={(item) => item.name}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.list}
+          />
+          <TouchableOpacity
+            onPress={() => router.push("/pages/ShowsPage")}
+            style={styles.viewAllButton}
+          >
+            <Text style={styles.viewAllText}>View All</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -61,7 +73,7 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     backgroundColor: "#f5f5f5",
   },
   section: {
@@ -70,11 +82,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: 10,
     color: "#4B0082",
   },
   list: {
     paddingHorizontal: 5,
+    paddingVertical: 10,
   },
   viewAllButton: {
     marginTop: 15,

@@ -4,9 +4,9 @@ import { Icon } from "react-native-elements";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { shows } from "../data/db";
 import { useNavigation } from "@react-navigation/native";
-import SearchBarComponent from "../components/searchbar";
-import ShowListAll from "../components/showListAll";
-import NoResults from "../components/noresults";
+import SearchBarComponent from "../components/SearchBar";
+import ShowListAll from "../components/ShowListAll";
+import NoResults from "../components/NoResults";
 
 const ShowsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,7 +20,7 @@ const ShowsPage = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={navigation.goBack}>
           <Icon name="arrow-left" type="feather" size={26} color="#687ed4" />
         </TouchableOpacity>
         <SearchBarComponent
