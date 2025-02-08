@@ -5,6 +5,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HomePage from "./HomePage";
 import Settings from "./SettingsPage";
 import NotificationHistory from "./NotificationHistoryPage";
+import DisneylandMap from "./MapPage";
 
 const Tab = createBottomTabNavigator();
 
@@ -28,7 +29,7 @@ export default function BottomTabNavigator() {
         },
         {
           name: "Map",
-          component: HomePage,
+          component: DisneylandMap,
           icon: "map-marker",
           label: "Map",
         },

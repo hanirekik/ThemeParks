@@ -67,9 +67,18 @@ const NotificationHistory = () => {
 
   return (
     <View style={styles.container} edges={["top", "left", "right"]}>
-      <Animated.View entering={FadeIn.duration(800)}>
-        <Text style={styles.title}>Notification History</Text>
-      </Animated.View>
+      <View style={styles.header}>
+        <Animated.View entering={FadeIn.duration(800)}>
+          <Text style={styles.title}>Notification History</Text>
+        </Animated.View>
+        <Animated.View entering={FadeInRight.duration(800).delay(200)}>
+          <TouchableOpacity onPress={handleClearHistory}>
+            <View style={styles.clearButtonContainer}>
+              <Text style={styles.clearButtonText}>Clear</Text>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
 
       {history.length === 0 ? (
         <Animated.Text
@@ -79,36 +88,23 @@ const NotificationHistory = () => {
           No notifications received yet.
         </Animated.Text>
       ) : (
-        <>
-          <Animated.View entering={FadeInRight.duration(800).delay(200)}>
-            <FlatList
-              data={history}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <Animated.View
-                  style={styles.notificationItem}
-                  entering={FadeInDown.duration(800)}
-                  exiting={FadeOutUp.duration(800)}
-                >
-                  <Text style={styles.notificationTitle}>{item.title}</Text>
-                  <Text style={styles.notificationBody}>{item.body}</Text>
-                  <Text style={styles.notificationTimestamp}>
-                    {new Date(item.timestamp).toLocaleString()}
-                  </Text>
-                </Animated.View>
-              )}
-            />
-          </Animated.View>
-
-          <Animated.View entering={FadeInRight.duration(800).delay(400)}>
-            <TouchableOpacity
-              style={styles.clearButton}
-              onPress={handleClearHistory}
+        <FlatList
+          data={history}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => (
+            <Animated.View
+              style={styles.notificationItem}
+              entering={FadeInDown.duration(800)}
+              exiting={FadeOutUp.duration(800)}
             >
-              <Text style={styles.clearButtonText}>Clear History</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </>
+              <Text style={styles.notificationTitle}>{item.title}</Text>
+              <Text style={styles.notificationBody}>{item.body}</Text>
+              <Text style={styles.notificationTimestamp}>
+                {new Date(item.timestamp).toLocaleString()}
+              </Text>
+            </Animated.View>
+          )}
+        />
       )}
     </View>
   );
@@ -120,11 +116,17 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#f5f5f5",
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
     marginTop: 30,
     marginBottom: 20,
+    fontWeight: "bold",
     color: "#4B0082",
   },
   emptyText: {
@@ -159,17 +161,19 @@ const styles = StyleSheet.create({
     color: "#95a5a6",
     marginTop: 10,
   },
-  clearButton: {
-    backgroundColor: "#c0392b",
-    padding: 20,
-    borderRadius: 10,
+  clearButtonContainer: {
+    backgroundColor: "#4B0082", // Matching the title color
+    borderRadius: 20, // Making it circular
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     alignItems: "center",
-    marginTop: 20,
+    justifyContent: "center",
+    marginTop: 30,
+    marginBottom: 5,
   },
   clearButtonText: {
     fontSize: 16,
     color: "#fff",
-    fontWeight: "bold",
   },
 });
 

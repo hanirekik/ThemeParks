@@ -35,6 +35,11 @@ const AttractionListAll = ({ item }) => {
 
   useEffect(() => {
     const loadNotificationPreference = async () => {
+      if (!globalNotificationsEnabled) {
+        setIsNotificationEnabled(false);
+        return;
+      }
+
       const savedPreference = await AsyncStorage.getItem(
         `notification_${item.id}`
       );
@@ -43,26 +48,25 @@ const AttractionListAll = ({ item }) => {
       }
     };
     loadNotificationPreference();
-  }, [item.id]);
+  }, [item.id, globalNotificationsEnabled]);
 
   const toggleNotification = async () => {
     if (!globalNotificationsEnabled) {
       Alert.alert(
         "Notifications Disabled",
-        "Please enable notifications in the Settings page to receive alerts.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Go to Settings",
-            onPress: () => router.push("/pages/Settings"),
-          },
-        ]
+        "Please enable notifications in Settings to receive alerts.",
+        [{ text: "Ok" }]
       );
       return;
     }
 
     const newPreference = !isNotificationEnabled;
     setIsNotificationEnabled(newPreference);
+
+    await AsyncStorage.setItem(
+      `notification_${item.id}`,
+      JSON.stringify(newPreference)
+    );
 
     if (newPreference && item.waitTime < 20) {
       await scheduleNotification(item.name);
@@ -99,7 +103,13 @@ const AttractionListAll = ({ item }) => {
           name={isNotificationEnabled ? "bell" : "bell-off"}
           type="feather"
           size={24}
-          color={isNotificationEnabled ? "#f39c12" : "#95a5a6"}
+          color={
+            globalNotificationsEnabled
+              ? isNotificationEnabled
+                ? "#f39c12"
+                : "#95a5a6"
+              : "#d3d3d3"
+          } // Gray if disabled
         />
       </TouchableOpacity>
     </View>
