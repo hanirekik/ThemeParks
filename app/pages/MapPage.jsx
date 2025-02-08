@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Alert, LogBox } from 'react-native';
-import MapView from 'react-native-maps';
+import { View, StyleSheet, Alert, LogBox,ActivityIndicator } from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
 import axios from 'axios';
-import LocationMarker from '../components/LocationMarker';
+import LocationMarker from '../components/LocationMarker'; 
 import AttractionMarker from '../components/AttractionMarker';
 import InfoBar from '../components/InfoBar';
+import * as Location from 'expo-location'; // ✅ Importation d'Expo Location
+
+import RefreshButton from '../components/RefreshButton'; // ✅ Importation du bouton d'actualisation
 
 // Ignorer l'avertissement concernant la clé unique dans une liste
 LogBox.ignoreLogs(['Each child in a list should have a unique "key" prop.']);
@@ -14,11 +17,10 @@ const DisneylandMap = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [attractions, setAttractions] = useState([]);
   const [selectedAttraction, setSelectedAttraction] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅ Ajout d'un état de chargement
 
-  // Fonction pour récupérer les données du backend, incluant la latitude et la longitude des attractions
-  const getApiUrl = () => {
-    return "http://192.168.1.17:3000/api/locations"; // Assure-toi que cette URL est correcte
-  };
+  // Fonction pour récupérer les données du backend
+  const getApiUrl = () => "http://192.168.1.17:3000/api/locations";
 
   const fetchWaitTimes = async () => {
     try {
@@ -35,19 +37,15 @@ const DisneylandMap = () => {
   const fetchAttractionsFromDB = async () => {
     try {
       const response = await axios.get(getApiUrl());
+      console.log("get de loc de attracions")
+
       setAttractions((prevAttractions) => {
         return prevAttractions.map((attraction, index) => {
           const dbAttraction = response.data.find(item => item.name === attraction.name);
-          if (dbAttraction) {
-            return {
-              ...attraction,
-              latitude: dbAttraction.latitude,
-              longitude: dbAttraction.longitude,
-              uniqueKey: `${attraction.name}-${index}`,
-            };
-          }
           return {
             ...attraction,
+            latitude: dbAttraction?.latitude || attraction.latitude,
+            longitude: dbAttraction?.longitude || attraction.longitude,
             uniqueKey: `${attraction.name}-${index}`,
           };
         });
@@ -58,17 +56,49 @@ const DisneylandMap = () => {
     }
   };
 
+  const getUserLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission refusée');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    } catch (error) {
+      console.error("❌ Erreur lors de la récupération de la localisation :", error);
+      setErrorMsg('Impossible de récupérer la localisation');
+    }
+  }
+
+
   useEffect(() => {
-    fetchWaitTimes(); // Appel à l'API ThemePark
-    fetchAttractionsFromDB(); // Appel au backend pour récupérer les coordonnées des attractions
+    const loadData = async () => {
+      await fetchWaitTimes();
+      console.log("recup de waittimes")
+      await fetchAttractionsFromDB();
+      console.log("recup de loc de attracions")
+      await getUserLocation();
+      console.log("recup de loc de user")
+     
+      setLoading(false); // ✅ Une fois toutes les données chargées, on enlève le loader
+    };
+
+    loadData();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
   return (
     <View style={styles.container}>
-      {/* 🔹 Barre d'information en haut de l'écran */}
       <InfoBar selectedAttraction={selectedAttraction} />
-
-      {/* Affichage de la carte */}
+      
       <MapView
         style={styles.map}
         initialRegion={{
@@ -78,17 +108,23 @@ const DisneylandMap = () => {
           longitudeDelta: 0.01,
         }}
       >
-        {attractions.map((attraction) => (
+        {attractions.map((attraction, index) => (
           <AttractionMarker
-            key={attraction.uniqueKey}
-            attraction={attraction}
+          key={`${attraction.name}-${index}`} // ✅ Unique key définie ici
+          attraction={attraction}
             onPress={setSelectedAttraction}
           />
         ))}
 
-        {/* Afficher le marqueur de la localisation de l'utilisateur */}
-        <LocationMarker location={location} />
+{location && (
+          <LocationMarker location={location}           
+          />
+        )}
+
       </MapView>
+
+      {/* ✅ Bouton pour rafraîchir les données */}
+      {/* <RefreshButton onRefresh={refreshData} /> */}
     </View>
   );
 };

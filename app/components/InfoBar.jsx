@@ -13,6 +13,12 @@ const InfoBar = ({ selectedAttraction }) => {
       <Text style={styles.infoTextSmall}>
         MàJ: {new Date(selectedAttraction.lastUpdated).toLocaleString()}
       </Text>
+      <Text style={styles.infoTextSmall}>
+        Type: {selectedAttraction.entityType || "N/A"}
+      </Text>
+      <Text style={styles.infoTextSmall}>
+        Etat: {selectedAttraction.status || "N/A"}
+      </Text>
     </View>
   );
 };
@@ -38,6 +44,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 14,
   },
-});
+}); 
 
 export default InfoBar;

@@ -52,7 +52,8 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "react-router-dom": "^7.1.1",
-    "themeparks": "^6.0.1"
+    "themeparks": "^6.0.1",
+    "expo-updates": "~0.26.16"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
