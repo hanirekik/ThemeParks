@@ -26,8 +26,7 @@ const HomePage = () => {
   const fetchPredictionFromDB = async () => {
     try {
       const response = await axios.get(getApiUrl());
-      // console.log("✅ Données récupérées :", response.data);
-  
+      
       let dateOccurrences = {}; // Objet pour stocker les occurrences des dates
   
       // Regrouper les prédictions par name
@@ -36,23 +35,10 @@ const HomePage = () => {
         const year = predictionDate.getFullYear();
         const month = predictionDate.getMonth();
   
-        // Filtrer les prédictions pour exclure celles de 2024 et janvier 2025
-        if (year === 2024 || (year === 2025 && month === 0)) {
-          return acc;
-        }
-  
-        if (!acc[item.name]) {
-          acc[item.name] = [];
-        }
-        acc[item.name].push({
-          prediction_Date: item.prediction_Date,
-          predicted_waitTime: item.predicted_waitTime,
-        });
-  
         // Compter les occurrences de chaque date
         const dateKey = item.prediction_Date;
         dateOccurrences[dateKey] = (dateOccurrences[dateKey] || 0) + 1;
-  
+        
         return acc;
       }, {});
   
@@ -63,9 +49,24 @@ const HomePage = () => {
   
       console.log("📅 Date la plus fréquente :", mostFrequentDate);
   
-      setPredic(groupedPredictions); // Met à jour le state avec l'objet regroupé
-      setMostFrequentDate(mostFrequentDate); // Si tu veux l'utiliser ailleurs
+      // Filtrer les prédictions pour ne garder que celles avec la date la plus fréquente
+      const filteredPredictions = response.data.filter(item => item.prediction_Date.split('T')[0] === mostFrequentDate.split('T')[0]);
+      
+      // Regrouper les prédictions filtrées par name
+      const finalGroupedPredictions = filteredPredictions.reduce((acc, item) => {
+        if (!acc[item.name]) {
+          acc[item.name] = [];
+        }
+        acc[item.name].push({
+          prediction_Date: item.prediction_Date,
+          predicted_waitTime: item.predicted_waitTime,
+        });
+        return acc;
+      }, {});
   
+      setPredic(finalGroupedPredictions); // Met à jour le state avec l'objet regroupé filtré
+      setMostFrequentDate(mostFrequentDate); // Stocker la date la plus fréquente
+    
     } catch (error) {
       console.error("❌ Erreur lors de la récupération des prédictions :", error);
       Alert.alert("Erreur", "Impossible de récupérer les prédictions.");

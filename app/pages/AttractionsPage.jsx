@@ -79,6 +79,7 @@ const AttractionsListPage = ({ }) => {
           contentContainerStyle={styles.listContainer}
         />
       )}
+      
       <SortModal
         isModalVisible={isModalVisible}
         toggleModal={toggleModal}
