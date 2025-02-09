@@ -72,21 +72,46 @@ const DisneylandMap = () => {
     }
   }
 
+  // useEffect(() => {
+  //   const loadData = async () => {
+  //     await fetchWaitTimes();
+  //     console.log("recup de waittimes")
+  //     await fetchAttractionsFromDB();
+  //     console.log("recup de loc de attracions")
+  //     await getUserLocation();
+  //     console.log("recup de loc de user")
+     
+  //     setLoading(false); // ✅ Une fois toutes les données chargées, on enlève le loader
+  //   };
+
+  //   loadData();
+  // }, []);
+
 
   useEffect(() => {
     const loadData = async () => {
       await fetchWaitTimes();
-      console.log("recup de waittimes")
+      console.log("recup de waittimes");
       await fetchAttractionsFromDB();
-      console.log("recup de loc de attracions")
+      console.log("recup de loc de attracions");
       await getUserLocation();
-      console.log("recup de loc de user")
-     
+      console.log("recup de loc de user");
+  
       setLoading(false); // ✅ Une fois toutes les données chargées, on enlève le loader
     };
-
+  
     loadData();
+  
+    // Met en place un intervalle pour actualiser la localisation toutes les 30 sec
+    const locationInterval = setInterval(() => {
+      getUserLocation();
+      console.log("Mise à jour de la localisation utilisateur");
+    }, 30000);
+  
+    // Nettoyage de l'intervalle lorsque le composant est démonté
+    return () => clearInterval(locationInterval);
   }, []);
+  
 
   if (loading) {
     return (
