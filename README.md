@@ -10,7 +10,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Create a .env file
+
+   ```bash
+   GOOGLE_MAPS_API_KEY = Your API Key
+   ```
+
+3. Start the app
 
    ```bash
     npm start
