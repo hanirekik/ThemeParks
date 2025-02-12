@@ -6,26 +6,24 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Text,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-import SearchBar from "../components/SearchPrediction";
+import SearchBarComponent from "../components/SearchBar";
 import SortButtons from "../components/SortButtons";
 import AttractionList from "../components/PredictionList";
 
-import SearchBarComponent from "../components/SearchBar";
-import { Ionicons } from "@expo/vector-icons";
-
-const getApiUrl = () => "http://192.168.1.1:3000/prediction";
+const getApiUrl = () => "http://192.168.1.49:3000/prediction";
 
 const PredictionListPage = () => {
   const [predictions, setPredictions] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [mostFrequentDate, setMostFrequentDate] = useState("");
   const navigation = useNavigation();
-  // const [mostFrequentDate, setMostFrequentDate] = useState("");
 
   useEffect(() => {
     fetchPredictionFromDB();
@@ -35,35 +33,24 @@ const PredictionListPage = () => {
     try {
       const response = await axios.get(getApiUrl());
 
-      let dateOccurrences = {}; // Objet pour stocker les occurrences des dates
+      let dateOccurrences = {};
 
-      // Regrouper les prédictions par name
-      const groupedPredictions = response.data.reduce((acc, item) => {
-        const predictionDate = new Date(item.prediction_Date);
-        const year = predictionDate.getFullYear();
-        const month = predictionDate.getMonth();
-
-        // Compter les occurrences de chaque date
-        const dateKey = item.prediction_Date;
+      response.data.forEach((item) => {
+        const dateKey = item.prediction_Date.split("T")[0];
         dateOccurrences[dateKey] = (dateOccurrences[dateKey] || 0) + 1;
+      });
 
-        return acc;
-      }, {});
-
-      // Trouver la date avec le plus d'occurrences
       const mostFrequentDate = Object.keys(dateOccurrences).reduce((a, b) =>
         dateOccurrences[a] > dateOccurrences[b] ? a : b
       );
 
-      console.log("📅 Date la plus fréquente :", mostFrequentDate);
+      console.log("📅 Most frequent date:", mostFrequentDate);
+      setMostFrequentDate(mostFrequentDate);
 
-      // Filtrer les prédictions pour ne garder que celles avec la date la plus fréquente
       const filteredPredictions = response.data.filter(
-        (item) =>
-          item.prediction_Date.split("T")[0] === mostFrequentDate.split("T")[0]
+        (item) => item.prediction_Date.split("T")[0] === mostFrequentDate
       );
 
-      // Regrouper les prédictions filtrées par name
       const finalGroupedPredictions = filteredPredictions.reduce(
         (acc, item) => {
           if (!acc[item.name]) {
@@ -78,14 +65,10 @@ const PredictionListPage = () => {
         {}
       );
 
-      setPredictions(finalGroupedPredictions); // Met à jour le state avec l'objet regroupé filtré
-      // setMostFrequentDate(mostFrequentDate); // Stocker la date la plus fréquente
+      setPredictions(finalGroupedPredictions);
     } catch (error) {
-      console.error(
-        "❌ Erreur lors de la récupération des prédictions :",
-        error
-      );
-      Alert.alert("Erreur", "Impossible de récupérer les prédictions.");
+      console.error("❌ Error fetching predictions:", error);
+      Alert.alert("Error", "Unable to retrieve predictions.");
     }
   };
 
@@ -134,6 +117,12 @@ const PredictionListPage = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.sectionTitle}>
+        Shortest wait time for{" "}
+        {mostFrequentDate
+          ? new Date(mostFrequentDate).toDateString()
+          : "Loading..."}
+      </Text>
       <View style={styles.searchBarContainer}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Icon name="arrow-left" type="feather" size={26} color="#687ed4" />
@@ -164,6 +153,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ffffff",
     paddingTop: 10,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 10,
+    color: "#333",
   },
   searchBarContainer: {
     flexDirection: "row",

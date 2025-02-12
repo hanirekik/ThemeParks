@@ -13,9 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as Location from "expo-location";
 import { scheduleNotification } from "../services/NotificationService";
-import Config from "react-native-config";
-
-const GOOGLE_MAPS_API_KEY = Config.GOOGLE_MAPS_API_KEY;
+import { GOOGLE_MAPS_API_KEY } from "../../config";
 
 const AttractionListAll = ({ item }) => {
   const router = useRouter();
@@ -48,10 +46,22 @@ const AttractionListAll = ({ item }) => {
 
     const getUserLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
+
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Location permission is required.");
+        if (!global.alertShown) {
+          global.alertShown = true; // Prevent multiple alerts
+          Alert.alert("Permission Denied", "Location permission is required.", [
+            {
+              text: "OK",
+              onPress: () => {
+                global.alertShown = false; // Reset so it can be shown again if needed later
+              },
+            },
+          ]);
+        }
         return;
       }
+
       const location = await Location.getCurrentPositionAsync({});
       setUserLocation(location.coords);
     };

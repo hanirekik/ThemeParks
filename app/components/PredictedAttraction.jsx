@@ -142,8 +142,8 @@ const PredictionListPage = () => {
               {predictions[attractionName].map((item, index) => (
                 <View key={index} style={styles.predictionItem}>
                   <Text style={styles.predictionText}>
-                    📅 {new Date(item.prediction_Date).toLocaleDateString()} -
-                    ⏳ {item.predicted_waitTime} min
+                    {new Date(item.prediction_Date).toLocaleDateString()} - ⏳{" "}
+                    {item.predicted_waitTime} min
                   </Text>
                 </View>
               ))}

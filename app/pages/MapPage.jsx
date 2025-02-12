@@ -26,7 +26,7 @@ const DisneylandMap = () => {
   const [loading, setLoading] = useState(true); // ✅ Ajout d'un état de chargement
 
   // Fonction pour récupérer les données du backend
-  const getApiUrl = () => "http://192.168.1.1:3000/api/locations";
+  const getApiUrl = () => "http://192.168.1.49:3000/api/locations";
 
   const fetchWaitTimes = async () => {
     try {

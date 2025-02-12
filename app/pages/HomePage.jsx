@@ -15,9 +15,13 @@ import { attractions, shows } from "../data/db";
 import Header from "../components/Header";
 import AttractionItem from "../components/AttractionItem";
 import ShowItem from "../components/ShowItem";
-import Animated, { FadeIn, FadeInRight } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeInRight,
+  FadeInUp,
+} from "react-native-reanimated";
 
-const getApiUrl = () => "http://172.20.10.2:3000/prediction";
+const getApiUrl = () => "http://192.168.1.49:3000/prediction";
 
 const HomePage = () => {
   const router = useRouter();
@@ -28,35 +32,35 @@ const HomePage = () => {
     try {
       const response = await axios.get(getApiUrl());
 
-      let dateOccurrences = {}; // Objet pour stocker les occurrences des dates
+      let dateOccurrences = {}; // Object to store date occurrences
 
-      // Regrouper les prédictions par name
+      // Group predictions by name
       const groupedPredictions = response.data.reduce((acc, item) => {
         const predictionDate = new Date(item.prediction_Date);
         const year = predictionDate.getFullYear();
         const month = predictionDate.getMonth();
 
-        // Compter les occurrences de chaque date
+        // Count occurrences of each date
         const dateKey = item.prediction_Date;
         dateOccurrences[dateKey] = (dateOccurrences[dateKey] || 0) + 1;
 
         return acc;
       }, {});
 
-      // Trouver la date avec le plus d'occurrences
+      // Find the most frequent date
       const mostFrequentDate = Object.keys(dateOccurrences).reduce((a, b) =>
         dateOccurrences[a] > dateOccurrences[b] ? a : b
       );
 
-      console.log("📅 Date la plus fréquente :", mostFrequentDate);
+      console.log("📅 Most frequent date:", mostFrequentDate);
 
-      // Filtrer les prédictions pour ne garder que celles avec la date la plus fréquente
+      // Filter predictions to keep only those with the most frequent date
       const filteredPredictions = response.data.filter(
         (item) =>
           item.prediction_Date.split("T")[0] === mostFrequentDate.split("T")[0]
       );
 
-      // Regrouper les prédictions filtrées par name
+      // Group filtered predictions by name
       const finalGroupedPredictions = filteredPredictions.reduce(
         (acc, item) => {
           if (!acc[item.name]) {
@@ -71,14 +75,11 @@ const HomePage = () => {
         {}
       );
 
-      setPredic(finalGroupedPredictions); // Met à jour le state avec l'objet regroupé filtré
-      setMostFrequentDate(mostFrequentDate); // Stocker la date la plus fréquente
+      setPredic(finalGroupedPredictions); // Update state with the filtered grouped data
+      setMostFrequentDate(mostFrequentDate); // Store the most frequent date
     } catch (error) {
-      console.error(
-        "❌ Erreur lors de la récupération des prédictions :",
-        error
-      );
-      Alert.alert("Erreur", "Impossible de récupérer les prédictions.");
+      console.error("❌ Error fetching predictions:", error);
+      Alert.alert("Error", "Unable to fetch predictions.");
     }
   };
 
@@ -135,7 +136,7 @@ const HomePage = () => {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* Section des Prédictions */}
+        {/* Prediction Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             Shortest wait time for {new Date(mostFrequentDate).toDateString()}
@@ -145,15 +146,17 @@ const HomePage = () => {
             data={Object.keys(predic)}
             renderItem={({ item }) => (
               <View style={styles.predictionItem}>
-                <Text style={styles.predictionTitle}>🎢 {item}</Text>
+                <Text style={styles.predictionTitle}>{item}</Text>
                 {predic[item].map((pred, index) => (
                   <View key={index} style={styles.predictionDetail}>
-                    <Text style={styles.predictionText}>
-                      🕒 {new Date(pred.prediction_Date).toLocaleTimeString()}
-                    </Text>
-                    <Text style={styles.predictionText}>
-                      ⏳ {pred.predicted_waitTime} min
-                    </Text>
+                    <View style={styles.predictionRow}>
+                      <Text style={styles.predictionText}>
+                        🕒 {new Date(pred.prediction_Date).toLocaleTimeString()}
+                      </Text>
+                      <Text style={styles.predictionWaitTime}>
+                        {pred.predicted_waitTime} min
+                      </Text>
+                    </View>
                   </View>
                 ))}
               </View>
@@ -209,6 +212,47 @@ const styles = StyleSheet.create({
   viewAllText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+
+  // Prediction Item styles
+  predictionItem: {
+    backgroundColor: "#fafafa",
+    borderRadius: 15,
+    padding: 15,
+    marginRight: 15,
+    width: 190,
+    height: 120,
+    alignItems: "center",
+    justifyContent: "space-between", // Distribute space between elements
+    flexDirection: "column", // Ensure that the child elements stack vertically
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  predictionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  predictionDetail: {
+    marginTop: "auto", // Pushes the prediction details to the bottom of the container
+  },
+  predictionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    width: "100%", // Ensures the row spans the full width of its container
+  },
+  predictionText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  predictionWaitTime: {
+    fontSize: 14,
+    color: "red", // Color for wait time
   },
 });
 
