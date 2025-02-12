@@ -10,10 +10,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Create a .env file
+2. Create a config.ts file
 
    ```bash
-   GOOGLE_MAPS_API_KEY = Your API Key
+   export const GOOGLE_MAPS_API_KEY = 'Your_API_Key';
    ```
 
 3. Start the app
