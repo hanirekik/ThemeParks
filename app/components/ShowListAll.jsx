@@ -1,12 +1,22 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const ShowListAll = ({ item }) => (
-  <View style={styles.item}>
-    <Text style={styles.name}>{item.name}</Text>
-    <Text style={styles.time}>🎭 Show starts at {item.time}</Text>
-  </View>
-);
+const ShowListAll = ({ item }) => {
+  // Check if the item is a show and has showtimes
+  const isShow = item.entityType === "SHOW";
+  const showtimes = isShow && item.showtimes ? item.showtimes : [];
+
+  return (
+    <View style={styles.item}>
+      <Text style={styles.name}>{item.name}</Text>
+      {isShow && showtimes.length > 0 && (
+        <Text style={styles.time}>
+          🕒 Starts at: {new Date(showtimes[0].startTime).toLocaleTimeString()}
+        </Text>
+      )}
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   item: {
