@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  FlatList,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { useRouter } from "expo-router";
@@ -16,34 +15,14 @@ import * as Location from "expo-location";
 import { scheduleNotification } from "../services/NotificationService";
 import { GOOGLE_MAPS_API_KEY } from "../../config";
 
-const AttractionListAll = () => {
+const AttractionListAll = ({ item }) => {
   const router = useRouter();
-  const [attractions, setAttractions] = useState([]);
   const [isNotificationEnabled, setIsNotificationEnabled] = useState(false);
   const [globalNotificationsEnabled, setGlobalNotificationsEnabled] =
     useState(false);
   const [fastPassTime, setFastPassTime] = useState(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(
-          "https://api.themeparks.wiki/v1/entity/e8d0207f-da8a-4048-bec8-117aa946b2c2/live"
-        );
-        const data = await response.json();
-        const attractionsData = data.liveData.filter(
-          (item) => item.entityType === "ATTRACTION"
-        );
-        setAttractions(attractionsData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -243,33 +222,26 @@ const AttractionListAll = () => {
     }
   };
 
-  const renderItem = ({ item }) => (
+  return (
     <View style={styles.item}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+      <Image source={item.image} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.name}</Text>
         <View style={styles.detailsContainer}>
           <View style={styles.waitStatusContainer}>
-            {item.queue.STANDBY.status === "OPERATING" && (
+            {item.status === "Open" && (
               <>
-                <Text style={styles.waitTime}>
-                  🕒 {item.queue.STANDBY.waitTime} min
-                </Text>
+                <Text style={styles.waitTime}>🕒 {item.waitTime} min</Text>
                 <Text style={styles.separator}> • </Text>
               </>
             )}
             <Text
               style={[
                 styles.status,
-                {
-                  color:
-                    item.queue.STANDBY.status === "OPERATING"
-                      ? "#27ae60"
-                      : "#c0392b",
-                },
+                { color: item.status === "Open" ? "#27ae60" : "#c0392b" },
               ]}
             >
-              {item.queue.STANDBY.status}
+              {item.status}
             </Text>
           </View>
         </View>

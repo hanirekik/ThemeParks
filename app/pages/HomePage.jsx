@@ -113,8 +113,12 @@ const HomePage = () => {
         id: item.id,
         name: item.name,
         details: item.entityType,
-        status: item.status === "OPERATING" ? "OPEN" : "CLOSED", // Map status
-        waitTime: item.queue?.STANDBY?.waitTime || null,
+        time: item.showtimes?.[0]?.startTime
+          ? new Date(item.showtimes[0].startTime).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "No showtime available", // Accessing startTime and formatting
       }));
 
       setAttractions(formattedAttractions);
