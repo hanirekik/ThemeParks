@@ -15,6 +15,7 @@ import * as Location from "expo-location";
 import { scheduleNotification } from "../services/NotificationService";
 import { GOOGLE_MAPS_API_KEY } from "../../config";
 import imageMap from "../utils/imageMap"; // Import the generated mapping
+import moment from "moment";
 
 const AttractionListAll = ({ item }) => {
   const router = useRouter();
@@ -327,7 +328,9 @@ const AttractionListAll = ({ item }) => {
             </Text>
           </View>
         </View>
-        <Text style={styles.lastUpdated}>Last Updated: {item.lastUpdated}</Text>
+        <Text style={styles.lastUpdated}>
+          Last Updated: {moment(item.lastUpdated).format("YYYY-MM-DD HH:mm:ss")}
+        </Text>
         {fastPassTime ? (
           <Text style={styles.fastPassText}>🎟️ Fast Pass: {fastPassTime}</Text>
         ) : (
