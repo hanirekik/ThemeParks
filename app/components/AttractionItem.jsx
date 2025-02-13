@@ -1,24 +1,34 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
+import imageMap from "../utils/imageMap"; // Import the generated mapping
 
-const AttractionItem = ({ item }) => (
-  <Animated.View entering={FadeInUp.duration(600)}>
-    <TouchableOpacity style={styles.attractionItem}>
-      <Image source={item.image} style={styles.image} />
-      <View style={styles.textContainer}>
-        <Text style={styles.itemName}>{item.name}</Text>
-        <Text style={styles.itemDetails}>{item.details}</Text>
+const AttractionItem = ({ item }) => {
+  // Get the image from the mapping object
+  const imageSource = imageMap[item.name] || imageMap["default"]; // Default image if not found
+
+  return (
+    <Animated.View entering={FadeInUp.duration(600)}>
+      <TouchableOpacity style={styles.attractionItem}>
+        <Image source={imageSource} style={styles.image} />
+        <Text style={styles.name}>{item.name}</Text>
         <View style={styles.statusContainer}>
-          <Text style={styles.status}>{item.status}</Text>
-          {item.status === "Open" && (
-            <Text style={styles.waitTime}>{item.waitTime} min</Text>
+          <Text
+            style={[
+              styles.status,
+              item.status === "CLOSED" && styles.closedStatus,
+            ]}
+          >
+            {item.status}
+          </Text>
+          {item.status === "OPEN" && (
+            <Text style={styles.waitTime}>{item.waitTime || "N/A"} min</Text>
           )}
         </View>
-      </View>
-    </TouchableOpacity>
-  </Animated.View>
-);
+      </TouchableOpacity>
+    </Animated.View>
+  );
+};
 
 const styles = StyleSheet.create({
   attractionItem: {
@@ -41,33 +51,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-  textContainer: {
-    flex: 1,
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  itemName: {
+  name: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
     textAlign: "center",
   },
-  itemDetails: {
-    fontSize: 14,
-    color: "#555",
-    textAlign: "center",
-    marginTop: 3,
-  },
   statusContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
-    width: "100%",
+    position: "absolute",
+    bottom: 15,
+    left: 15,
+    right: 15,
   },
   status: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#008000",
+  },
+  closedStatus: {
+    color: "#ff0000",
   },
   waitTime: {
     fontSize: 14,

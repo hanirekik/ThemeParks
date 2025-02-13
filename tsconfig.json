@@ -24,6 +24,7 @@
     "app/components/attractionitem.jsx",
     "app/components/showitem.jsx",
     "app/components/ShowListAll.jsx",
-    "app/components/SortModal.jsx"
+    "app/components/SortModal.jsx",
+    "config.js"
   ]
 }

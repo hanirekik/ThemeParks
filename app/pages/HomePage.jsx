@@ -11,7 +11,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import axios from "axios";
-import { attractions, shows } from "../data/db";
 import Header from "../components/Header";
 import AttractionItem from "../components/AttractionItem";
 import ShowItem from "../components/ShowItem";
@@ -23,12 +22,17 @@ import Animated, {
 } from "react-native-reanimated";
 
 const getApiUrl = () => "http://192.168.1.49:3000/prediction";
+const themeParkApiUrl =
+  "https://api.themeparks.wiki/v1/entity/e8d0207f-da8a-4048-bec8-117aa946b2c2/live";
 
 const HomePage = () => {
   const router = useRouter();
   const [predic, setPredic] = useState([]);
   const [mostFrequentDate, setMostFrequentDate] = useState("");
+  const [attractions, setAttractions] = useState([]);
+  const [shows, setShows] = useState([]);
 
+  // Fetch predictions from your backend
   const fetchPredictionFromDB = async () => {
     try {
       const response = await axios.get(getApiUrl());
@@ -84,8 +88,46 @@ const HomePage = () => {
     }
   };
 
+  // Fetch attractions and shows from the Theme Parks API
+  const fetchThemeParkData = async () => {
+    try {
+      const response = await axios.get(themeParkApiUrl);
+      const liveData = response.data.liveData;
+
+      // Filter attractions and shows based on entityType
+      const attractionsData = liveData.filter(
+        (item) => item.entityType === "ATTRACTION"
+      );
+      const showsData = liveData.filter((item) => item.entityType === "SHOW");
+
+      // Format the data for the UI
+      const formattedAttractions = attractionsData.map((item) => ({
+        id: item.id,
+        name: item.name,
+        details: item.entityType,
+        status: item.status === "OPERATING" ? "OPEN" : "CLOSED", // Map status
+        waitTime: item.queue?.STANDBY?.waitTime || null,
+      }));
+
+      const formattedShows = showsData.map((item) => ({
+        id: item.id,
+        name: item.name,
+        details: item.entityType,
+        status: item.status === "OPERATING" ? "OPEN" : "CLOSED", // Map status
+        waitTime: item.queue?.STANDBY?.waitTime || null,
+      }));
+
+      setAttractions(formattedAttractions);
+      setShows(formattedShows);
+    } catch (error) {
+      console.error("❌ Error fetching theme park data:", error);
+      Alert.alert("Error", "Unable to fetch attractions and shows.");
+    }
+  };
+
   useEffect(() => {
     fetchPredictionFromDB();
+    fetchThemeParkData();
   }, []);
 
   return (
@@ -101,9 +143,9 @@ const HomePage = () => {
         >
           <Text style={styles.sectionTitle}>Popular Attractions</Text>
           <FlatList
-            data={attractions.slice(0, 4)}
+            data={attractions.slice(0, 10)}
             renderItem={({ item }) => <AttractionItem item={item} />}
-            keyExtractor={(item) => item.name}
+            keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.list}
@@ -124,7 +166,7 @@ const HomePage = () => {
           <FlatList
             data={shows.slice(0, 4)}
             renderItem={({ item }) => <ShowItem item={item} />}
-            keyExtractor={(item) => item.name}
+            keyExtractor={(item) => item.id}
             horizontal
             showsHorizontalScrollIndicator={false}
             style={styles.list}
