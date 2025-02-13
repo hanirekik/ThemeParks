@@ -138,18 +138,12 @@ const AttractionListAll = ({ item }) => {
   };
 
   const handleNoFastPass = async () => {
-    if (item.waitTime < 20) {
-      await scheduleNotification(
-        item.name,
-        "The wait time is less than 20 minutes. Head to the attraction now!"
-      );
-    } else {
-      Alert.alert(
-        "Wait Time Too Long",
-        "The wait time is more than 20 minutes. Notifications are only available for attractions with a wait time less than 20 minutes."
-      );
-      setIsNotificationEnabled(false); // Disable notification if wait time > 20
-    }
+    setIsNotificationEnabled(false); // Disable notification if no Fast Pass
+    await AsyncStorage.setItem(`notification_${item.id}`, "false"); // Save the preference
+    Alert.alert(
+      "No Fast Pass",
+      "Sorry, Notifications are only available for fastpass."
+    );
   };
 
   const handleConfirmTime = async (date) => {
@@ -160,7 +154,7 @@ const AttractionListAll = ({ item }) => {
     if (selectedTime <= now) {
       Alert.alert(
         "Invalid Time",
-        "You cannot select a time in the past. Please choose a future time."
+        "You cannot select a time in the past. Please choose another time."
       );
       return;
     }

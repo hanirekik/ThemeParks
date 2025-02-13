@@ -22,46 +22,42 @@ export const scheduleNotification = async (
   timeToStartWalking = null,
   cannotMakeIt = false
 ) => {
+  if (!isFastPass) {
+    // Notifications are only for Fast Pass users
+    console.log("Notifications are only available for Fast Pass users.");
+    return;
+  }
+
   let content, trigger;
 
-  if (isFastPass) {
-    if (cannotMakeIt) {
-      content = {
-        title: "Fast Pass Alert",
-        body: `You can't make it on time for your Fast Pass at ${attractionName}.`,
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-      };
-      trigger = null;
-    } else if (timeToStartWalking === 0) {
-      content = {
-        title: "Fast Pass Reminder",
-        body: `You should start heading to ${attractionName} now!`,
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-      };
-      trigger = null;
-    } else {
-      content = {
-        title: "Fast Pass Reminder",
-        body: `Start heading to ${attractionName} in ${Math.round(
-          timeToStartWalking / 60
-        )} minutes!`,
-        sound: true,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-      };
-      trigger = {
-        seconds: timeToStartWalking,
-      };
-    }
-  } else {
+  if (cannotMakeIt) {
     content = {
-      title: "Wait Time Alert",
-      body: `The wait time for ${attractionName} is less than 20 minutes!`,
+      title: "Fast Pass Alert",
+      body: `You can't make it on time for your Fast Pass at ${attractionName}.`,
       sound: true,
       priority: Notifications.AndroidNotificationPriority.HIGH,
     };
     trigger = null;
+  } else if (timeToStartWalking === 0) {
+    content = {
+      title: "Fast Pass Reminder",
+      body: `You should start heading to ${attractionName} now!`,
+      sound: true,
+      priority: Notifications.AndroidNotificationPriority.HIGH,
+    };
+    trigger = null;
+  } else {
+    content = {
+      title: "Fast Pass Reminder",
+      body: `Start heading to ${attractionName} in ${Math.round(
+        timeToStartWalking / 60
+      )} minutes!`,
+      sound: true,
+      priority: Notifications.AndroidNotificationPriority.HIGH,
+    };
+    trigger = {
+      seconds: timeToStartWalking,
+    };
   }
 
   await Notifications.scheduleNotificationAsync({

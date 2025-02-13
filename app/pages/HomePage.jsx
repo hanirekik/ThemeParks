@@ -15,6 +15,7 @@ import { attractions, shows } from "../data/db";
 import Header from "../components/Header";
 import AttractionItem from "../components/AttractionItem";
 import ShowItem from "../components/ShowItem";
+import WeeklyAverageChartPage from "../pages/GraphiquePage";
 import Animated, {
   FadeIn,
   FadeInRight,
@@ -172,6 +173,10 @@ const HomePage = () => {
           >
             <Text style={styles.viewAllText}>View All</Text>
           </TouchableOpacity>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Weekly Wait Times Analysis</Text>
+            <WeeklyAverageChartPage />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
