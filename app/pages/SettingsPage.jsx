@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Linking,
 } from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
+import * as Notifications from "expo-notifications";
 
 const Settings = () => {
   const router = useRouter();
@@ -47,6 +49,41 @@ const Settings = () => {
     saveSettings();
   }, [notificationsEnabled]);
 
+  const handleNotificationToggle = async (value) => {
+    if (value) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") {
+        Alert.alert(
+          "Permission Denied",
+          "You need to enable notifications in your device settings to use this feature.",
+          [
+            {
+              text: "Cancel",
+              onPress: () => setNotificationsEnabled(false),
+              style: "cancel",
+            },
+            {
+              text: "Open Settings",
+              onPress: () => {
+                Linking.openSettings();
+              },
+            },
+          ]
+        );
+        return;
+      }
+    }
+    setNotificationsEnabled(value);
+  };
+
   return (
     <Animated.View style={styles.container} entering={FadeIn.duration(500)}>
       <Text style={styles.title}>Settings</Text>
@@ -55,7 +92,7 @@ const Settings = () => {
         <Text style={styles.settingText}>Allow Notifications</Text>
         <Switch
           value={notificationsEnabled}
-          onValueChange={(value) => setNotificationsEnabled(value)}
+          onValueChange={handleNotificationToggle}
         />
       </Animated.View>
 
