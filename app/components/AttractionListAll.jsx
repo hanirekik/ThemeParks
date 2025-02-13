@@ -14,6 +14,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import * as Location from "expo-location";
 import { scheduleNotification } from "../services/NotificationService";
 import { GOOGLE_MAPS_API_KEY } from "../../config";
+import imageMap from "../utils/imageMap"; // Import the generated mapping
 
 const AttractionListAll = ({ item }) => {
   const router = useRouter();
@@ -23,6 +24,12 @@ const AttractionListAll = ({ item }) => {
   const [fastPassTime, setFastPassTime] = useState(null);
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [coordinates, setCoordinates] = useState({
+    latitude: null,
+    longitude: null,
+  });
+
+  const imageSource = imageMap[item.name] || imageMap["default"]; // Default image if not found
 
   useEffect(() => {
     const loadPreferences = async () => {
@@ -31,6 +38,9 @@ const AttractionListAll = ({ item }) => {
       );
       if (savedGlobalPref !== null) {
         setGlobalNotificationsEnabled(JSON.parse(savedGlobalPref));
+      } else {
+        // Default to true if no preference is saved
+        setGlobalNotificationsEnabled(true);
       }
 
       const savedNotification = await AsyncStorage.getItem(
@@ -45,7 +55,10 @@ const AttractionListAll = ({ item }) => {
     };
 
     const getUserLocation = async () => {
+      console.log("Requesting location permissions..."); // Debugging log
       let { status } = await Location.requestForegroundPermissionsAsync();
+
+      console.log("Location permission status:", status); // Debugging log
 
       if (status !== "granted") {
         if (!global.alertShown) {
@@ -62,34 +75,71 @@ const AttractionListAll = ({ item }) => {
         return;
       }
 
-      const location = await Location.getCurrentPositionAsync({});
-      setUserLocation(location.coords);
+      try {
+        console.log("Fetching user location..."); // Debugging log
+        const location = await Location.getCurrentPositionAsync({});
+        console.log("User location fetched:", location.coords); // Debugging log
+        setUserLocation(location.coords);
+      } catch (error) {
+        console.error("Error fetching user location:", error);
+      }
     };
 
     loadPreferences();
-    getUserLocation();
+    getUserLocation(); // Fetch user location when the component mounts
   }, [item.id]);
 
+  // Function to fetch coordinates by name
+  const fetchCoordinatesByName = async (attractionName) => {
+    try {
+      const response = await fetch(
+        `https://api.themeparks.wiki/v1/entity/${item.id}`
+      );
+      const data = await response.json();
+
+      console.log(
+        "API Response for Coordinates:",
+        JSON.stringify(data, null, 2)
+      ); // Debugging log
+
+      // Check if the response contains coordinates directly
+      if (data.location && data.location.latitude && data.location.longitude) {
+        console.log("Coordinates found directly in response:", data.location); // Debugging log
+        return {
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+        };
+      } else {
+        console.log("Coordinates are null for this attraction."); // Debugging log
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      return null;
+    }
+  };
+
+  // Function to calculate walking time using Google Maps API
   const calculateTravelTime = async () => {
     if (!userLocation) {
       console.log("User location is not available.");
       return;
     }
 
-    if (!item.latitude || !item.longitude) {
+    if (!coordinates.latitude || !coordinates.longitude) {
       console.log("Attraction coordinates are not available.");
       return;
     }
 
     const origin = `${userLocation.latitude},${userLocation.longitude}`;
-    const destination = `${item.latitude},${item.longitude}`;
+    const destination = `${coordinates.latitude},${coordinates.longitude}`;
     const apiUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${origin}&destinations=${destination}&mode=walking&key=${GOOGLE_MAPS_API_KEY}`;
 
     try {
       const response = await fetch(apiUrl);
       const data = await response.json();
 
-      console.log("API Response:", JSON.stringify(data, null, 2));
+      console.log("Google Maps API Response:", JSON.stringify(data, null, 2)); // Debugging log
 
       if (
         data.rows &&
@@ -106,6 +156,7 @@ const AttractionListAll = ({ item }) => {
       }
     } catch (error) {
       console.error("Error fetching travel time:", error);
+      return null;
     }
   };
 
@@ -127,11 +178,34 @@ const AttractionListAll = ({ item }) => {
     );
 
     if (newPreference) {
-      Alert.alert("Fast Pass", "Do you have a Fast Pass?", [
-        { text: "No", onPress: () => handleNoFastPass() },
-        { text: "Yes", onPress: () => setDatePickerVisible(true) },
-      ]);
+      // Fetch coordinates for the attraction
+      const fetchedCoordinates = await fetchCoordinatesByName(item.name);
+
+      if (fetchedCoordinates) {
+        // Update coordinates state
+        setCoordinates(fetchedCoordinates);
+
+        // Wait for the state to update
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Small delay to ensure state update
+
+        console.log("Updated coordinates state:", coordinates); // Debugging log
+
+        // Coordinates found, proceed with enabling notifications
+        Alert.alert("Fast Pass", "Do you have a Fast Pass?", [
+          { text: "No", onPress: () => handleNoFastPass() },
+          { text: "Yes", onPress: () => setDatePickerVisible(true) },
+        ]);
+      } else {
+        // Coordinates not found, disable notifications
+        setIsNotificationEnabled(false);
+        await AsyncStorage.setItem(`notification_${item.id}`, "false");
+        Alert.alert(
+          "Coordinates Missing",
+          "Unable to fetch coordinates for this attraction. Notifications cannot be enabled."
+        );
+      }
     } else {
+      // Disable notifications
       setFastPassTime(null);
       await AsyncStorage.removeItem(`fastpass_${item.id}`);
     }
@@ -177,6 +251,14 @@ const AttractionListAll = ({ item }) => {
     setFastPassTime(formattedTime);
     await AsyncStorage.setItem(`fastpass_${item.id}`, formattedTime);
     setDatePickerVisible(false);
+
+    // Ensure coordinates are available
+    if (!coordinates.latitude || !coordinates.longitude) {
+      console.log("Attraction coordinates are not available.");
+      return;
+    }
+
+    console.log("Using coordinates:", coordinates); // Debugging log
 
     const travelTimeInSeconds = await calculateTravelTime();
     if (travelTimeInSeconds) {
@@ -224,7 +306,7 @@ const AttractionListAll = ({ item }) => {
 
   return (
     <View style={styles.item}>
-      <Image source={item.image} style={styles.image} />
+      <Image source={imageSource} style={styles.image} />
       <View style={styles.textContainer}>
         <Text style={styles.name}>{item.name}</Text>
         <View style={styles.detailsContainer}>
